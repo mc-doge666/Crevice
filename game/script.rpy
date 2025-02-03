@@ -28,3 +28,4 @@ label start:
     # 此处为游戏结尾。
 
     return
+
