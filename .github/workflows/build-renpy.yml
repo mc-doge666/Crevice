@@ -45,3 +45,14 @@ jobs:
           game: project
           packages: linux, win
           out_dir: target
+
+          
+      - uses: Ayowel/renpy-setup-action@v2.0.1
+        with:
+          action: distribute
+          install_dir: renpy
+          game: project
+          packages: |
+            linux linux-target/distrib_linux
+            win, mac
+          out_dir: target
