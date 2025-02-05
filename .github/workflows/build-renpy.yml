@@ -29,6 +29,7 @@ jobs:
     - name: Build Ren'Py Project
       run: |
         renpy ./Crevice
+      working-directory: ./Crevice
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
