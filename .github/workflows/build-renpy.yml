@@ -27,9 +27,9 @@ jobs:
         pip install ecdsa
 
     - name: Set up Ren'Py
-      uses: jwvhewitt/setup-renpy@v1
+      uses: Shadow53/setup-renpy@v1
       with:
-        renpy-version: '7.4.11'
+        version: '7.4.11'
 
     - name: Build Ren'Py Project
       run: |
