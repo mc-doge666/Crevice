@@ -1,0 +1,39 @@
+name: Build Ren'Py Project
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install Ren'Py
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y renpy
+
+    - name: Build Ren'Py Project
+      run: |
+        renpy ./your_project_directory
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: renpy-build
+        path: ./Crevice/build
