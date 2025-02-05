@@ -24,12 +24,16 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install ecdsa
 
     - name: Install Ren'Py
       run: |
         sudo apt-get update
         sudo apt-get install -y renpy
+
+    - name: Install Python dependencies for Ren'Py
+      run: |
+        pip install ecdsa
 
     - name: Build Ren'Py Project
       run: |
@@ -40,4 +44,3 @@ jobs:
       with:
         name: renpy-build
         path: ./build
-
