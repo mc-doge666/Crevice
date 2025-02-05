@@ -1,46 +1,45 @@
-name: Build Ren'Py Project
+name: Build Ren'Py Game
 
 on:
   push:
     branches:
       - main
+      - dev # 监听 main 分支的提交
   pull_request:
     branches:
       - main
+      - dev
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y wget tar
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install ecdsa
+      - name: Download and Extract Ren'Py SDK
+        run: |
+          wget https://www.renpy.org/dl/8.1.3/renpy-8.1.3-sdk.tar.bz2 -O renpy-sdk.tar.bz2
+          tar -xjf renpy-sdk.tar.bz2
+          mv renpy-8.1.3 renpy-sdk
+          chmod +x renpy-sdk/renpy.sh
 
-    - name: Install Ren'Py
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y renpy
+      - name: Build the Game
+        run: |
+          ./renpy-sdk/renpy.sh launcher distribute ./game
 
-    - name: Install Python dependencies for Ren'Py
-      run: |
-        pip install ecdsa
+      - name: List Build Artifacts
+        run: ls -la game/distributions
 
-    - name: Build Ren'Py Project
-      run: |
-        renpy .
-
-    - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: renpy-build
-        path: ./build
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: renpy-game-build
+          path: game/distributions/*
+          retention-days: 7
