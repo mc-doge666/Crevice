@@ -1,0 +1,58 @@
+# .github/workflows/help.yml
+name: Get Ren'Py's help message
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          path: project
+      - uses: actions/cache@v3
+        id: cache-renpy
+        with:
+          path: renpy
+          key: ${{ runner.os }}-renpy
+      - name: Install Ren'Py
+        uses: Ayowel/renpy-setup-action@v2.0.1
+        if: steps.cache-renpy.outputs.cache-hit != 'true'
+        with:
+          action: install
+          install_dir: renpy
+      # Update/Replace the step below to do something different
+      - name: Print help message
+        uses: Ayowel/renpy-setup-action@v2.0.1
+        with:
+          action: exec
+          install_dir: renpy
+          run: --help
+
+      - name: Generate game distribution files
+        uses: Ayowel/renpy-setup-action@v2.0.1
+        with:
+          action: distribute
+          install_dir: renpy
+          game: project
+          packages: linux, win
+          out_dir: target
+
+          
+      - uses: Ayowel/renpy-setup-action@v2.0.1
+        with:
+          action: distribute
+          install_dir: renpy
+          game: project
+          packages: |
+            linux linux-target/distrib_linux
+            win, mac
+          out_dir: target
