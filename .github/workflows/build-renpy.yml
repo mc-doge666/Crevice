@@ -21,6 +21,11 @@ jobs:
       with:
         python-version: '3.x'
 
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install ecdsa
+
     - name: Install Ren'Py
       run: |
         sudo apt-get update
@@ -29,7 +34,6 @@ jobs:
     - name: Build Ren'Py Project
       run: |
         renpy .
-      working-directory: .
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
