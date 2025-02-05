@@ -1,42 +1,58 @@
-name: Build Ren'Py Project
-
+# .github/workflows/help.yml
+name: Get Ren'Py's help message
 on:
   push:
     branches:
       - main
+      - dev
   pull_request:
     branches:
       - main
+      - dev
 
 jobs:
-  build:
-    runs-on: ubuntu-24.04
+  lint:
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          path: project
+      - uses: actions/cache@v3
+        id: cache-renpy
+        with:
+          path: renpy
+          key: ${{ runner.os }}-renpy
+      - name: Install Ren'Py
+        uses: Ayowel/renpy-setup-action@v2.0.1
+        if: steps.cache-renpy.outputs.cache-hit != 'true'
+        with:
+          action: install
+          install_dir: renpy
+      # Update/Replace the step below to do something different
+      - name: Print help message
+        uses: Ayowel/renpy-setup-action@v2.0.1
+        with:
+          action: exec
+          install_dir: renpy
+          run: --help
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
+      - name: Generate game distribution files
+        uses: Ayowel/renpy-setup-action@v2.0.1
+        with:
+          action: distribute
+          install_dir: renpy
+          game: project
+          packages: linux, win
+          out_dir: target
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install ecdsa
-
-    - name: Install Ren'Py
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y renpy
-
-    - name: Build Ren'Py Project
-      run: |
-        renpy .
-
-    - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: renpy-build
-        path: ./build
+          
+      - uses: Ayowel/renpy-setup-action@v2.0.1
+        with:
+          action: distribute
+          install_dir: renpy
+          game: project
+          packages: |
+            linux linux-target/distrib_linux
+            win, mac
+          out_dir: target
