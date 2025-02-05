@@ -1,37 +1,58 @@
-name: Lint and Test and Build and Deploy
-
+# .github/workflows/help.yml
+name: Get Ren'Py's help message
 on:
   push:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
-    - name: Install RenPy
-      uses: PaxlavaGames/renpy-install@v0.3.0
-      with:
-        version: "8.2.0"
-        download_web: "yes"
-    - name: Lint RenPy
-      uses: PaxlavaGames/renpy-lint@v0.4.0
-    - name: Create Web Build
-      uses: PaxlavaGames/renpy-web-build@v0.1.2
-    - name: Setup Pages
-      uses: actions/configure-pages@v3
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v2
-      with:
-        path: './web_build'
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v2
+      - uses: actions/checkout@v3
+        with:
+          path: project
+      - uses: actions/cache@v3
+        id: cache-renpy
+        with:
+          path: renpy
+          key: ${{ runner.os }}-renpy
+      - name: Install Ren'Py
+        uses: Ayowel/renpy-setup-action@v2.0.1
+        if: steps.cache-renpy.outputs.cache-hit != 'true'
+        with:
+          action: install
+          install_dir: renpy
+      # Update/Replace the step below to do something different
+      - name: Print help message
+        uses: Ayowel/renpy-setup-action@v2.0.1
+        with:
+          action: exec
+          install_dir: renpy
+          run: --help
+
+      - name: Generate game distribution files
+        uses: Ayowel/renpy-setup-action@v2.0.1
+        with:
+          action: distribute
+          install_dir: renpy
+          game: project
+          packages: linux, win
+          out_dir: target
+
+          
+      - uses: Ayowel/renpy-setup-action@v2.0.1
+        with:
+          action: distribute
+          install_dir: renpy
+          game: project
+          packages: |
+            linux linux-target/distrib_linux
+            win, mac
+          out_dir: target
