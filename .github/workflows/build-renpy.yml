@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - main
-      - dev
   pull_request:
     branches:
       - main
-      - dev
 
 jobs:
   build:
@@ -30,10 +28,10 @@ jobs:
 
     - name: Build Ren'Py Project
       run: |
-        renpy ./your_project_directory
+        renpy ./Crevice
 
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: renpy-build
         path: ./Crevice/build
