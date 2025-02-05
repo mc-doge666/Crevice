@@ -1,31 +1,41 @@
-# .github/workflows/help.yml
-name: Get Ren'Py's help message
+name: Build Ren'Py Project
+
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
 
 jobs:
-  lint:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          path: project
-      - uses: actions/cache@v3
-        id: cache-renpy
-        with:
-          path: renpy
-          key: ${{ runner.os }}-renpy
-      - name: Install Ren'Py
-        uses: Ayowel/renpy-setup-action@v2.0.1
-        if: steps.cache-renpy.outputs.cache-hit != 'true'
-        with:
-          action: install
-          install_dir: renpy
-      # Update/Replace the step below to do something different
-      - name: Print help message
-        uses: Ayowel/renpy-setup-action@v2.0.1
-        with:
-          action: exec
-          install_dir: renpy
-          run: --help
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Ren'Py
+      uses: renpy/renpy-setup-action@v1
+      with:
+        version: '7.4.11' # Specify the version of Ren'Py to use
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wine-stable
+
+    - name: Build game for Windows
+      run: |
+        ./renpy/renpy.sh launcher distribute .
+        mkdir -p build
+        mv ./dist/* ./build/
+        
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: renpy-windows-build
+        path: build/
